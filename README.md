@@ -4,7 +4,7 @@ To run it:
 
 
 
-1.(in signal.C)change infile's path in Signalcalc::ReadB8NeutrinoSpectrum, Signalcalc::ReadER and Signalcalc::ReadNR to the real path.
+1.(in signal.C)change infile's path in Signalcalc::ReadB8NeutrinoSpectrum, Signalcalc::ReadER and Signalcalc::ReadNR to the real path in your computer.
 
 2. mkdir build
 
