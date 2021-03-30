@@ -4,6 +4,9 @@
 #include <fstream>
 #include "TLine.h"
 
+using namespace std;
+using namespace std::chrono;
+
 int main(){
 	std::cout<<"code5 running..."<<std::endl;
     Long64_t Nsim = 1000000;
@@ -88,19 +91,59 @@ int main(){
 	}
 
 	std::ofstream outfile;
-    outfile.open("./cpu_outputs.dat");
-	for(int i = 0; i < Nsim  ; i++){
-		double Eer = h1->GetRandom();
+    outfile.open("./outputtemp.dat");
+	int xBinning = 100;
+    double xMin = 0.;
+    double xMax = 50;
+    double xStep = (xMax - xMin)/(double)xBinning;
+    int yBinning = 100;
+    double yMin = 0.;
+    double yMax = 5.;
+    double yStep = (yMax - yMin)/(double)yBinning;
+	double output[10010] = {0};
+	
+	auto start = high_resolution_clock::now();
+	for(int i = 0; i < 1024 * 1024 ; i++){
+		//double Eer = h1->GetRandom();
+		double Eer = gRandom->Uniform(0.,10.);
 	    QuantaResult quanta;
 		quanta = signal.GetQuanta_ER(Eer);
 		vector<double> S1 = signal.GetS1(quanta);
 		vector<double> S2 = signal.GetS2(quanta);
-		if (outfile.is_open()) 
-        {
-            outfile <<i<<" "<< S1[6] << " " << S2[6] << std::endl;
-	    }
-	    else{
-			std::cout<<"error in file opening"<<std::endl;
+		//if (outfile.is_open()) 
+        //{
+        //    outfile <<i<<" "<< S1[6] << " " << S2[6] << std::endl;
+	    //}
+	    //else{
+		//	std::cout<<"error in file opening"<<std::endl;
+		//}
+
+		// to get the histogram settings
+		if(S1[6]>0.&&S2[6]>0.)
+		{
+    		*(output+0) += 1.;
+    		//get values, overflows and underflows in output[1]-output[9]
+    		double xvalue = (double)S1[6];
+    		double yvalue = (double)log10f(S2[6]/S1[6]);
+
+    		if(xvalue<xMin && yvalue>=yMax)*(output+1) += 1.;
+    		else if(xvalue>xMin && xvalue<xMax && yvalue>=yMax)*(output+2) += 1.;
+    		else if(xvalue>=xMax && yvalue>=yMax)*(output+3) += 1.;
+    		else if(xvalue<xMin && yvalue>yMin && yvalue<yMax)*(output+4) += 1.;
+    		else if(xvalue>=xMin && xvalue<xMax && yvalue>=yMin && yvalue<yMax)
+    		{
+    		    int xbin = (int) ((xvalue - xMin)/xStep) + 1;
+    		    int ybin = (int) ((yvalue - yMin)/yStep) + 1;
+    		    //double weight = get_s1_efficiency(nHitsS1);
+    		    //if(weight<0.){weight = 0.;}
+    		    //printf("s1=%f, s2=%f, xbin=%d, ybin=%d, s1hit=%d,eff=%f, index=%d\\n",xvalue, yvalue,xbin, ybin, nHitsS1, weight, 9+(ybin-1)*xBinning+xbin);
+    		    *(output+9+(ybin-1)*xBinning+xbin) += 1.;
+    		    *(output+5) += 1.;
+    		}
+    		else if(xvalue>=xMax && yvalue>yMin && yvalue<yMax)*(output+6) += 1.;
+    		else if(xvalue<xMin && yvalue<yMin)*(output+7) += 1.;
+    		else if(xvalue>xMin && xvalue<xMax && yvalue<yMin)*(output+8) += 1.;
+    		else if(xvalue>=xMax && yvalue<yMin)*(output+9) += 1.;
 		}
 
 		if(S1[6]!=0.&&S2[6]!=0.){
@@ -108,11 +151,19 @@ int main(){
 		}
 		//double Er = W_EV * (S1[6]/ 1.2/ 0.09997 + S2[6]/ 1.2/ 28./ 0.727);
 		//h1b->Fill(Er);
-		if(S2[5]!=0.&&S1[6]==0.){
+		//if(S2[5]!=0.&&S1[6]==0.){
 			//h1b->Fill(S2[5]);
-			h1b->Fill(Eer * quanta.lindhard);
-		}
+		//	h1b->Fill(Eer * quanta.lindhard);
+		//}
 
+	}
+	auto stop = high_resolution_clock::now();
+	auto duration = duration_cast<microseconds>(stop - start);
+	cout << "Time taken by function: "
+         << duration.count() << " microseconds" << endl;
+
+	for(int i = 0; i<10010; i++){
+		outfile <<output[i]<<" ";
 	}
 	outfile.close();
 
@@ -133,10 +184,10 @@ int main(){
 		//std::cout<<Enr<<" "<<Er<<std::endl;
 	}	
 
-	TH1D * hfit = h1a->ProjectionY("test",101,110);
+	/*TH1D * hfit = h1a->ProjectionY("test",101,110);
 	TF1 *f1 = new TF1("f1","gaus",1.5,4.);
 	f1->SetParameters(hfit->GetMaximum(), hfit->GetMean(), hfit->GetRMS() ); 
-	hfit->Fit("f1");
+	hfit->Fit("f1");*/
 
 	/*TCanvas * c1 = new TCanvas("c1");
     //gStyle->SetOptStat(0);
@@ -181,7 +232,7 @@ int main(){
    }*/
 	
 		//get median of NR
-	double Ex[770], Ey[770];
+	/*double Ex[770], Ey[770];
 	for(int i = 0; i < 770; i++){
         int firstbin = i + 31;
         int lastbin = i + 31;
@@ -192,7 +243,7 @@ int main(){
         h_temp->GetQuantiles(5,median,aprob);
         Ex[i] = 0.1 * (firstbin - 0.5) ;
         Ey[i] = median[2];
-        }
+        }*/
 
 
 	//do ER rejection
