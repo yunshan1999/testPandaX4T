@@ -33,12 +33,12 @@ long calc::BinomFluct(long N0, double prob) {
     if (prob <= 0.00) return N1;
     if (prob >= 1.00) return N0;
   
-    if (N0 < 10) {
+    if (N0 * prob * (1. - prob) < 10) {
         for (int i = 0; i < N0; i++) {
             if (gRandom->Uniform(0.,1.) < prob) N1++;
         }
     } else {
-      N1 = int(floor(gRandom->Gaus(mean,sigma) + 0.5));
+      N1 = int(floor(gRandom->Gaus(mean,sigma)));
     }
   
     if (N1 > N0) N1 = N0;

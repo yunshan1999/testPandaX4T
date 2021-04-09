@@ -86,7 +86,6 @@ CMakeFiles/main.dir/main.C.o
  /Applications/root_v6.14.04/include/TGenericClassInfo.h
  /Applications/root_v6.14.04/include/TGraph.h
  /Applications/root_v6.14.04/include/TGraph2D.h
- /Applications/root_v6.14.04/include/TGraphErrors.h
  /Applications/root_v6.14.04/include/TH1.h
  /Applications/root_v6.14.04/include/TH1D.h
  /Applications/root_v6.14.04/include/TH2.h
@@ -99,7 +98,6 @@ CMakeFiles/main.dir/main.C.o
  /Applications/root_v6.14.04/include/TIsAProxy.h
  /Applications/root_v6.14.04/include/TIterator.h
  /Applications/root_v6.14.04/include/TLegend.h
- /Applications/root_v6.14.04/include/TLine.h
  /Applications/root_v6.14.04/include/TList.h
  /Applications/root_v6.14.04/include/TLorentzVector.h
  /Applications/root_v6.14.04/include/TMap.h
@@ -173,7 +171,7 @@ CMakeFiles/main.dir/main.C.o
  /Applications/root_v6.14.04/include/VecCore/VecMath.h
  /Applications/root_v6.14.04/include/snprintf.h
  /Applications/root_v6.14.04/include/strlcpy.h
- /Users/yunshan/work&study/sdu/neutrino/code5/main.C
+ /Users/yunshan/work&study/sdu/neutrino/code6/main.C
 CMakeFiles/main.dir/src/Detector.C.o
  ../include/Detector.h
  /Applications/root_v6.14.04/include/DllImport.h
@@ -211,7 +209,7 @@ CMakeFiles/main.dir/src/Detector.C.o
  /Applications/root_v6.14.04/include/TVirtualRWMutex.h
  /Applications/root_v6.14.04/include/snprintf.h
  /Applications/root_v6.14.04/include/strlcpy.h
- /Users/yunshan/work&study/sdu/neutrino/code5/src/Detector.C
+ /Users/yunshan/work&study/sdu/neutrino/code6/src/Detector.C
 CMakeFiles/main.dir/src/calc.C.o
  ../include/calc.h
  /Applications/root_v6.14.04/include/Buttons.h
@@ -380,7 +378,7 @@ CMakeFiles/main.dir/src/calc.C.o
  /Applications/root_v6.14.04/include/VecCore/VecMath.h
  /Applications/root_v6.14.04/include/snprintf.h
  /Applications/root_v6.14.04/include/strlcpy.h
- /Users/yunshan/work&study/sdu/neutrino/code5/src/calc.C
+ /Users/yunshan/work&study/sdu/neutrino/code6/src/calc.C
 CMakeFiles/main.dir/src/signal.C.o
  ../include/Detector.h
  ../include/calc.h
@@ -551,4 +549,4 @@ CMakeFiles/main.dir/src/signal.C.o
  /Applications/root_v6.14.04/include/VecCore/VecMath.h
  /Applications/root_v6.14.04/include/snprintf.h
  /Applications/root_v6.14.04/include/strlcpy.h
- /Users/yunshan/work&study/sdu/neutrino/code5/src/signal.C
+ /Users/yunshan/work&study/sdu/neutrino/code6/src/signal.C

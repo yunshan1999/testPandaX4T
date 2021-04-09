@@ -39,7 +39,7 @@ void Signalcalc::ReadER(double * x, double * y){
 void Signalcalc::ReadNR(double * x, double * y){
     double temp1, temp2;
     ifstream infile("/Users/yunshan/work&study/sdu/neutrino/code5/NR.dat");
-    for(int i = 0; i < 89; i++){
+    for(int i = 0; i < 25; i++){
         infile>>temp1>>temp2;
         x[i] = temp1;
         y[i] = temp2;
@@ -167,12 +167,12 @@ double Signalcalc::GetER(double * param){
         double P_Emax = F_ER[i];
         temp = calculation.GetLinearInte(Eer, Emin, Emax, P_Emin, P_Emax);
     }
-    param[0] *= (10. - 0.) * 0.05;
+    param[0] *=  temp;
     return Eer;
 }
 
 double Signalcalc::GetNR(double * param){
-    double Enr = gRandom->Uniform(0.,100.);//NR in keV
+    double Enr = gRandom->Uniform(0.,50.);//NR in keVf
     double temp;//y value of spectrum curve
     int n = sizeof(E_NR)/8;
     int i;
@@ -191,7 +191,7 @@ double Signalcalc::GetNR(double * param){
         double P_Emax = F_NR[i];
         temp = calculation.GetLinearInte(Enr, Emin, Emax, P_Emin, P_Emax);
     }
-    param[0] *= (100.- 0.) * temp;
+    param[0] *=  temp;
     param[1] = (double)calculation.SelectRanXeAtom();
     //if(Enr<1.1)param[0] *= 0.;
     return Enr;
@@ -224,7 +224,7 @@ double Signalcalc::GetAcceptance(double Enr){
 double Signalcalc::GetS1Eff(int nhit){
     if (nhit < 3)return 0.;
     else{
-        int n = sizeof(Nhit)/8;
+        int n = sizeof(Nhit)/4;
         double temp;
         int i;
         for(i = 0 ; i < n ; i++){
@@ -234,7 +234,7 @@ double Signalcalc::GetS1Eff(int nhit){
             }
         }
         if(n == i)temp = Eff[n-1];
-       // std::cout<<temp<<std::endl;
+        //std::cout<<nhit<<" "<<temp<<std::endl;
         return temp;
     }
 }
@@ -283,26 +283,45 @@ QuantaResult Signalcalc::GetQuanta_NR(double energy){
 
     //fano fluctuations and lindhard fluctuations
     double Fano = 1.; 
-    int Nq_mean = energy / W_EV;
-    int Nq_actual = int(floor(gRandom->Gaus(Nq_mean, sqrt(Fano * Nq_mean)) + 0.5));
+    int Nq_mean = int (energy / W_EV);
+    int Nq_actual = int(floor(gRandom->Gaus(Nq_mean, sqrt(Fano * Nq_mean))));
     if(Nq_actual < 0.)Nq_actual = 0;
     int Nq = calculation.BinomFluct(Nq_actual, L);
 
     //get exciton ratio and do fluctuations
-    double alpha = 1.24;
-    double zeta = 0.0472;
-    double beta = 239.;
-    double NexONi = alpha * pow(detector.get_E_drift(),-zeta) * (1 - exp(-beta * epsilon));//NexONi = Nex/Ni
+    //double alpha = 1.24;
+    //double zeta = 0.0472;
+    //double beta = 239.;
+    //double NexONi = alpha * pow(detector.get_E_drift(),-zeta) * (1 - exp(-beta * epsilon));//NexONi = Nex/Ni
+    double NuisParam[11] = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.};
+    double nq = NuisParam[0] * pow(energy, NuisParam[1]);
+    double ThomasImel =
+            NuisParam[2] * pow(detector.get_E_drift(), NuisParam[3]) * pow(detector.get_density() / 2.90, 0.3);
+    double Qy = 1. / (ThomasImel*pow(energy+NuisParam[4],NuisParam[9]));
+    Qy *= 1. - 1. / pow(1. + pow((energy / NuisParam[5]), NuisParam[6]),NuisParam[10]);
+    double Ly = nq / energy - Qy;
+    if (Qy < 0.0) Qy = 0.0;
+    if (Ly < 0.0) Ly = 0.0;
+    double ne = Qy * energy;
+    double nph = Ly * energy *
+              (1. - 1. / (1. + pow((energy / NuisParam[7]), NuisParam[8])));
+    nq = nph + ne;
+    double ni = (4. / ThomasImel) * (exp(ne * ThomasImel / 4.) - 1.);
+    double nex = (-1. / ThomasImel) * (4. * exp(ne * ThomasImel / 4.) -
+                                           (ne + nph) * ThomasImel - 4.);
+    double NexONi = nex / ni;
+    
     int Ni = calculation.BinomFluct(Nq,1/(1 + NexONi));
     int Nex = Nq - Ni;
     
     //get recombination fraction fluctuations
-    double gamma = 0.01385;
-    double delta = 0.0620;
-    double sigma = gamma * pow(detector.get_E_drift(), -delta);
+    //double gamma = 0.01385;
+    //double delta = 0.0620;
+    //double sigma = gamma * pow(detector.get_E_drift(), -delta);
     double q2 = 0.04;
     double q3 = 1.7;
-    double rmean = 1. - log(1 + Ni * sigma )/(Ni * sigma );
+    //double rmean = 1. - log(1 + Ni * sigma )/(Ni * sigma );
+    double rmean = 1 - ne / ni;
     double deltaR = q2 * (1 - exp(-energy/q3));
     double r = gRandom->Gaus(rmean,deltaR);
     if(r < 0.)r = 0.;
@@ -324,23 +343,27 @@ QuantaResult Signalcalc::GetQuanta_NR(double energy){
     }
 
     QuantaResult result;
+    result.quanta_mean = Nq_mean;
+    result.quanta_actual = Nq_actual;
+    result.quanta = Nq;
     result.photons = Nph;
     result.electrons = Ne;
     result.ions = Ni;
     result.excitons = Nex;
     result.truthz = gRandom->Uniform(0.,detector.get_TopDrift());
     result.lindhard = L;
+    result.recomb = r;
     return result;     
 }
 
 QuantaResult Signalcalc::GetQuanta_ER(double energy){
     double L = 1.;
 
-    int Nq_mean = energy / W_EV;
+    int Nq_mean = int(energy / W_EV);
     double Fano = 0.12707 - 0.029623 * detector.get_density() - 0.0057042 * pow(detector.get_density(), 2.)
      + 0.0015957 * pow(detector.get_density(), 3.); 
     Fano += 0.0015 * sqrt(Nq_mean) * pow(detector.get_E_drift(), 0.5);
-    int Nq_actual = int(floor(gRandom->Gaus(Nq_mean, sqrt(Fano * Nq_mean)) + 0.5));
+    int Nq_actual = int(floor(gRandom->Gaus(Nq_mean, sqrt(Fano * Nq_mean)) ));
     if(Nq_actual < 0.)Nq_actual = 0;
     int Nq = calculation.BinomFluct(Nq_actual, L);
 
@@ -351,15 +374,48 @@ QuantaResult Signalcalc::GetQuanta_ER(double energy){
     int Nex = Nq - Ni;
     
     //get recombination fraction fluctuations
-    double gamma = 0.124;
-    double omega = 31.;
-    double delta = 0.24;
-    double q0 = 1.13;
-    double q1 = 0.47;
-    double sigma = gamma * exp(-energy / omega) * pow(detector.get_E_drift(), -delta);
+    //double gamma = 0.124;
+    //double omega = 31.;
+    //double delta = 0.24;
+    //double q0 = 1.13;
+    //double q1 = 0.47;
+    //double sigma = gamma * exp(-energy / omega) * pow(detector.get_E_drift(), -delta);
+    
+    double Wq_eV =
+      1.9896 + (20.8 - 1.9896) / (1. + pow(detector.get_density() / 4.0434, 1.4407));
+    double QyLvllowE = 1e3 / Wq_eV + 6.5 * (1. - 1. / (1. + pow(detector.get_E_drift() / 47.408, 1.9851)));
+    double HiFieldQy =
+          1. + 0.4607 / pow(1. + pow(detector.get_E_drift() / 621.74, -2.2717), 53.502);
+    double QyLvlmedE =
+          32.988 -
+          32.988 /
+              (1. + pow(detector.get_E_drift() / (0.026715 * exp(detector.get_density() / 0.33926)), 0.6705));
+    QyLvlmedE *= HiFieldQy;
+    double DokeBirks =
+          1652.264 +
+          (1.415935e10 - 1652.264) / (1. + pow(detector.get_E_drift() / 0.02673144, 1.564691));
+    double nq = energy * 1e3 /
+                  Wq_eV;  //( Wq_eV+(12.578-Wq_eV)/(1.+powf(energy/1.6,3.5)) );
+    double LET_power = -2.;
+    double QyLvlhighE = 28.;
+      //      if (density > 3.) QyLvlhighE = 49.; Solid Xe effect from Yoo. But,
+      //      beware of enabling this line: enriched liquid Xe for neutrinoless
+      //      double beta decay has density higher than 3g/cc;
+    double Qy = QyLvlmedE +
+                  (QyLvllowE - QyLvlmedE) /
+                      pow(1. + 1.304 * pow(energy, 2.1393), 0.35535) +
+                  QyLvlhighE / (1. + DokeBirks * pow(energy, LET_power));
+    if (Qy > QyLvllowE && energy > 1. && detector.get_E_drift() > 1e4) Qy = QyLvllowE;
+    double Ly = nq / energy - Qy;
+    double ne = Qy * energy;
+    double nph = Ly * energy;
+    double nex = nq * (NexONi) / (1. + NexONi);
+    double ni = nq * 1. / (1. + NexONi);
+    double rmean = 1 - ne / ni;
+    
     double q2 = 0.04;
     double q3 = 1.7;
-    double rmean = (1. - log(1 + Ni * sigma/4. )/(Ni * sigma/4.))/(1 + exp(-(energy - q0)/q1));
+    //double rmean = (1. - log(1 + Ni * sigma/4. )/(Ni * sigma/4.))/(1 + exp(-(energy - q0)/q1));
     double deltaR = q2 * (1 - exp(-energy/q3));
     double r = gRandom->Gaus(rmean,deltaR);
     if(r < 0.)r = 0.;
@@ -373,6 +429,7 @@ QuantaResult Signalcalc::GetQuanta_ER(double energy){
     if (Ne > energy / W_SCINT) Ne = energy / W_SCINT;
     if (Nph < 0.) Nph = 0.;
     if (Ne < 0.) Ne = 0.;
+
     if (L < 0.) L = 0.;
     if (L > 1.) L = 1.;  // Lindhard Factor
     if (energy <  W_EV / L) {
@@ -381,12 +438,16 @@ QuantaResult Signalcalc::GetQuanta_ER(double energy){
     }
 
     QuantaResult result;
+    result.quanta_mean = Nq_mean;
+    result.quanta_actual = Nq_actual;
+    result.quanta = Nq;
     result.photons = Nph;
     result.electrons = Ne;
     result.ions = Ni;
     result.excitons = Nex;
     result.truthz = gRandom->Uniform(0.,detector.get_TopDrift());
     result.lindhard = L;
+    result.recomb = r;
     return result;  
 }
 
@@ -410,7 +471,7 @@ vector<double> Signalcalc::GetS1(QuantaResult quanta) {
     double eff = GetS1Eff(nHits);
     double dice = gRandom->Rndm();
     int nHits_eff = nHits;
-    if(dice > eff) nHits_eff *= 0.;
+    //if(dice > eff) nHits_eff *= 0.;
     double Nphe = nHits_eff + calculation.BinomFluct(nHits_eff, detector.get_P_dphe());
     double pulseArea = gRandom->Gaus(Nphe,detector.get_sPEres() * sqrt(Nphe));
     if(pulseArea < 0.)pulseArea = 0.;
@@ -442,7 +503,7 @@ vector<double> Signalcalc::GetS2(QuantaResult quanta){
     double dt = (detector.get_TopDrift() - quanta.truthz) / detector.get_driftvelocity();
     int Nee = calculation.BinomFluct(Ne, detector.get_ExtraEff() * exp(-dt / detector.get_eLife_us()));
     int nHits = long(floor(gRandom->Gaus(detector.get_SEG() * double(Nee), 
-                sqrt(double(Nee)) * detector.get_deltaG()) + 0.5));
+                sqrt(double(Nee)) * detector.get_deltaG())));
     if(nHits < 0.)nHits = 0;
     double Nphe = nHits + calculation.BinomFluct(nHits, detector.get_P_dphe());
     double pulseArea = gRandom->Gaus(Nphe,detector.get_sPEres() * sqrt(Nphe));

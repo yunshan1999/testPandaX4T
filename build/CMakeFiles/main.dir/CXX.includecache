@@ -722,10 +722,6 @@ TAttMarker.h
 TFitResultPtr.h
 /Applications/root_v6.14.04/include/TFitResultPtr.h
 
-/Applications/root_v6.14.04/include/TGraphErrors.h
-TGraph.h
-/Applications/root_v6.14.04/include/TGraph.h
-
 /Applications/root_v6.14.04/include/TH1.h
 TAxis.h
 /Applications/root_v6.14.04/include/TAxis.h
@@ -823,18 +819,6 @@ TPave.h
 /Applications/root_v6.14.04/include/TPave.h
 TAttText.h
 /Applications/root_v6.14.04/include/TAttText.h
-
-/Applications/root_v6.14.04/include/TLine.h
-TObject.h
-/Applications/root_v6.14.04/include/TObject.h
-TAttLine.h
-/Applications/root_v6.14.04/include/TAttLine.h
-TAttBBox2D.h
-/Applications/root_v6.14.04/include/TAttBBox2D.h
-TPoint.h
-/Applications/root_v6.14.04/include/TPoint.h
-GuiTypes.h
-/Applications/root_v6.14.04/include/GuiTypes.h
 
 /Applications/root_v6.14.04/include/TList.h
 TSeqCollection.h
@@ -1372,27 +1356,23 @@ unistd.h
 sys/types.h
 -
 
-/Users/yunshan/work&study/sdu/neutrino/code5/main.C
+/Users/yunshan/work&study/sdu/neutrino/code6/main.C
 iostream
 -
 signal.h
-/Users/yunshan/work&study/sdu/neutrino/code5/signal.h
-TGraphErrors.h
--
+/Users/yunshan/work&study/sdu/neutrino/code6/signal.h
 fstream
 -
-TLine.h
-/Users/yunshan/work&study/sdu/neutrino/code5/TLine.h
 
-/Users/yunshan/work&study/sdu/neutrino/code5/src/Detector.C
+/Users/yunshan/work&study/sdu/neutrino/code6/src/Detector.C
 Detector.h
-/Users/yunshan/work&study/sdu/neutrino/code5/src/Detector.h
+/Users/yunshan/work&study/sdu/neutrino/code6/src/Detector.h
 
-/Users/yunshan/work&study/sdu/neutrino/code5/src/calc.C
+/Users/yunshan/work&study/sdu/neutrino/code6/src/calc.C
 calc.h
-/Users/yunshan/work&study/sdu/neutrino/code5/src/calc.h
+/Users/yunshan/work&study/sdu/neutrino/code6/src/calc.h
 
-/Users/yunshan/work&study/sdu/neutrino/code5/src/signal.C
+/Users/yunshan/work&study/sdu/neutrino/code6/src/signal.C
 signal.h
-/Users/yunshan/work&study/sdu/neutrino/code5/src/signal.h
+/Users/yunshan/work&study/sdu/neutrino/code6/src/signal.h
 

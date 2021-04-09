@@ -29,12 +29,16 @@ struct YieldResult{
 };
 
 struct QuantaResult{
+    int quanta_mean;
+    int quanta_actual;
+    int quanta;
     int photons;
     int electrons;
     int ions;
     int excitons;
     double truthz;
     double lindhard;
+    double recomb;
 };
 
 struct Bias{
@@ -49,7 +53,7 @@ class Signalcalc{
         // prob distrubiton function of B8 solar neutrino and Flux of ER and NR
         double E_B8[160],P_B8[160];
         double E_ER[6],F_ER[6];
-        double E_NR[89],F_NR[89];
+        double E_NR[25],F_NR[25];
         //double s1_up[69],s2_up[69];
         //double s1_low[66],s2_low[66];
         double accep[17],E_accep[17];
