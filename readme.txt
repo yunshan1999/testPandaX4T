@@ -7,4 +7,4 @@ cmake ..
 make
 ./main
 
-Just main.C, include, src, ER.dat, NR.dat, 
+Just main.C, include, src, *.dat are necessary to run. 
